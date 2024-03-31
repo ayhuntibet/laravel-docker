@@ -10,6 +10,9 @@ services:
       - MARIADB_ROOT_PASSWORD=rootpassword
     volumes:
       - 'mariadb_data:/bitnami/mariadb'
+    ports:
+      - '3306:3306' # Opsiyonel: MariaDB'ye harici erişim için. Güvenlik nedeniyle yalnızca geliştirme ortamlarında kullanılmalıdır.
+
   myapp:
     image: 'bitnami/laravel:latest'
     environment:
@@ -24,7 +27,18 @@ services:
       - mariadb
     volumes:
       - '.:/app'
-      
+
+  phpmyadmin:
+    image: 'phpmyadmin/phpmyadmin'
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_USER=bn_laravel
+      - PMA_PASSWORD=password
+    ports:
+      - '8080:80'
+    depends_on:
+      - mariadb
+
 volumes:
   mariadb_data:
     driver: local
