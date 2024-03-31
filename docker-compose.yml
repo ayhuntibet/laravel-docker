@@ -1,20 +1,30 @@
-version: '3.8'
+version: '3'
+
 services:
-  app:
-    build: .
-    ports:
-      - "8000:8000"
+  mariadb:
+    image: 'bitnami/mariadb:latest'
+    environment:
+      - MARIADB_USER=bn_laravel
+      - MARIADB_DATABASE=bitnami_laravel
+      - MARIADB_PASSWORD=password
+      - MARIADB_ROOT_PASSWORD=rootpassword
     volumes:
-      - .:/app
+      - 'mariadb_data:/bitnami/mariadb'
+  myapp:
+    image: 'bitnami/laravel:latest'
     environment:
-      DB_HOST: db
-      DB_DATABASE: laravel
-      DB_USERNAME: root
-      DB_PASSWORD: root
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: root
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=bitnami_laravel
+      - DB_USERNAME=bn_laravel
+      - DB_PASSWORD=password
     ports:
-      - "3306:3306"
+      - '80:3000'
+    depends_on:
+      - mariadb
+    volumes:
+      - '.:/app'
+      
+volumes:
+  mariadb_data:
+    driver: local
